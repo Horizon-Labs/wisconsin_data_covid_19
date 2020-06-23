@@ -1,1 +1,2 @@
-from .population import *
+from .data import *
+from .graph import *

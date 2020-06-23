@@ -3,6 +3,8 @@ setup.py
 Horizon_Labs.egg-info/PKG-INFO
 Horizon_Labs.egg-info/SOURCES.txt
 Horizon_Labs.egg-info/dependency_links.txt
+Horizon_Labs.egg-info/requires.txt
 Horizon_Labs.egg-info/top_level.txt
 covid_data/__init__.py
-covid_data/population.py
+covid_data/data.py
+covid_data/graph.py
