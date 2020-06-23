@@ -22,10 +22,8 @@ def fetch_census(cache="census.csv", force_update=False):
         full_census = pd.read_csv('https://www.census.gov/content/dam/Census/topics/research/pdb2020stcov2_us.csv', encoding = "ISO-8859-1", skiprows=[1])
         wisconsin_census = full_census[full_census.State_name == 'Wisconsin']
         wisconsin_census = wisconsin_census[wisconsin_census.Geog_Level == 'County']
-
-        wisconsin_census.rename(columns={'GIDSTCO': 'fips', 'county': 'county_number', 'County_name': 'county', 'LAND_AREA': 'area', 'Tot_Population_ACS_14_18': 'population', 'Males_ACS_14_18': 'male_population', 'Females_ACS_14_18': 'female_population', 'Median_Age_ACS_14_18': 'median_age', 'Pop_under_5_ACS_14_18': '<5', 'Pop_5_17_ACS_14_18':'5-17', 'Pop_18_24_ACS_18_24': '18-24', 'Pop_25_44_ACS_14_18': '25-44', 'Pop_45_64_ACS_14_18': '45-64', 'Pop_65plus_ACS_14_18': '65+'})
-
-        for i in range(len(wisconsin_census['county'])):
+        wisconsin_census.rename(columns={'GIDSTCO': 'fips', 'county': 'county_number', 'County_name': 'county', 'LAND_AREA': 'area', 'Tot_Population_ACS_14_18': 'population', 'Males_ACS_14_18': 'male_population', 'Females_ACS_14_18': 'female_population', 'Median_Age_ACS_14_18': 'median_age', 'Pop_under_5_ACS_14_18': '<5', 'Pop_5_17_ACS_14_18':'5-17', 'Pop_18_24_ACS_18_24': '18-24', 'Pop_25_44_ACS_14_18': '25-44', 'Pop_45_64_ACS_14_18': '45-64', 'Pop_65plus_ACS_14_18': '65+'}, inplace=True)
+        for i in wisconsin_census['county'].keys():
             wisconsin_census['county'][i] = wisconsin_census['county'][i][:-7] 
 
         wisconsin_census.to_csv(cache)
@@ -49,25 +47,25 @@ def fetch_cases(cache="covid_cases.csv", force_update=False, day=datetime.strfti
                     cases_data[k].append(feature['properties'][k])
         covid_cases = pd.DataFrame(data=cases_data)
 
-        covid_cases.rename(columns={'GEOID': 'fips', 'NAME': 'county'})
+        covid_cases.rename(columns={'GEOID': 'fips', 'NAME': 'county'}, inplace=True)
 
         covid_cases.to_csv(cache)
     return covid_cases
 
-def fetch_vaccinations(cache="vaccinated.csv", force_update=False, vaccinations_file="vaccinations.csv"):
+def fetch_vaccinations(cache="vaccinated.csv", force_update=False, force_recalc=False, vaccinations_file="vaccinations.csv"):
     # temp make random data
     global vaccinated
     global codes
     if not force_update and path.exists(cache):
         vaccinated = pd.read_csv(cache)
     else:
-        if not force_update and path.exists(vaccinations_file):
+        if (not force_update or force_recalc) and path.exists(vaccinations_file):
             countyVaccines = {}
 
             vaccinations = pd.read_csv(vaccinations_file)
 
             for county in codes:
-                countyVaccines[county] = {'total': 0, 'male': 0, 'female': 0, '<5': 0, '5-17': 0, '18-24': 0, '25-44': 0, '45-64': 0, '65+': 0}
+                countyVaccines[county] = {'fips': county, 'total': 0, 'male': 0, 'female': 0, '<5': 0, '5-17': 0, '18-24': 0, '25-44': 0, '45-64': 0, '65+': 0}
 
             for i in range(len(vaccinations['fips'])):
                 countyVaccines[vaccinations['fips'][i]]['total'] += 1
@@ -97,7 +95,7 @@ def fetch_vaccinations(cache="vaccinated.csv", force_update=False, vaccinations_
         else:
             # fetch data
             gen_sample_data(file=vaccinations_file)
-            fetch_vaccinations(cache=cache, vaccinations_file=vaccinations_file)
+            fetch_vaccinations(cache=cache, vaccinations_file=vaccinations_file, force_recalc=True)
 
 def gen_sample_data(n=10000, distribution="population", file="vaccinations.csv"):
     global wisconsin_census
@@ -128,26 +126,29 @@ def gen_sample_data(n=10000, distribution="population", file="vaccinations.csv")
         vaccinations['fips'].append(fips)
         vaccinations['gender'].append('male' if random.random()<0.5 else 'female')
         vaccinations['age'].append(random.randint(0,80))
-    vaccinated = pd.DataFrame(data=vaccinations)
-    vaccinated.to_csv(file)
-    return vaccinated
+    vaccinationLog = pd.DataFrame(data=vaccinations)
+    vaccinationLog.to_csv(file)
+    return vaccinationLog
 
 def wisconsin_census(property):
-    values, fips = []
+    values = []
+    fips = []
     for (f, v) in zip(wisconsin_census['fips'], wisconsin_census[property]):
         fips.append(f)
         values.append(v)
     return (values, fips)
 
 def covid_cases(property):
-    values, fips = []
+    values = []
+    fips = []
     for (f, v) in zip(covid_cases['fips'], covid_cases[property]):
         fips.append(f)
         values.append(v)
     return (values, fips)
 
 def vaccinated(property):
-    values, fips = []
+    values = []
+    fips = []
     for (f, v) in zip(vaccinated['fips'], vaccinated[property]):
         fips.append(f)
         values.append(v)
@@ -164,3 +165,9 @@ def county_list():
 
 def code_list():
     return codes
+
+def normalize(values, scales):
+    normalizedValues = []
+    for value, scale in zip(values, scales):
+        normalizedValues.append(value/scale)
+    return normalizedValues
