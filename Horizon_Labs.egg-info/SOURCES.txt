@@ -5,3 +5,4 @@ Horizon_Labs.egg-info/SOURCES.txt
 Horizon_Labs.egg-info/dependency_links.txt
 Horizon_Labs.egg-info/top_level.txt
 covid_data/__init__.py
+covid_data/population.py
