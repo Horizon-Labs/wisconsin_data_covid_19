@@ -1,0 +1,17 @@
+Metadata-Version: 2.1
+Name: Horizon-Labs
+Version: 0.0.1
+Summary: tools for analyzing data regarding COVID-19 in Wisconsin
+Home-page: https://github.com/Horizon-Labs/wisconsin_data_covid_19.git
+Author: T.Rose
+Author-email: roset21@muhs.edu
+License: UNKNOWN
+Description: # wisconsin_data_covid_19
+        
+Platform: UNKNOWN
+Classifier: Development Status :: 1 - Planning
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: Other/Proprietary License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
