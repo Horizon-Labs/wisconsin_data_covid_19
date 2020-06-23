@@ -25,7 +25,7 @@ def fetch_census(cache="census.csv", force_update=False):
         time.sleep(0.5)
         wisconsin_census.rename(columns={'GIDSTCO': 'fips', 'county': 'county_number', 'LAND_AREA': 'area', 'Tot_Population_ACS_14_18': 'population', 'Males_ACS_14_18': 'male_population', 'Females_ACS_14_18': 'female_population', 'Median_Age_ACS_14_18': 'median_age', 'Pop_under_5_ACS_14_18': '<5', 'Pop_5_17_ACS_14_18':'5-17', 'Pop_18_24_ACS_18_24': '18-24', 'Pop_25_44_ACS_14_18': '25-44', 'Pop_45_64_ACS_14_18': '45-64', 'Pop_65plus_ACS_14_18': '65+'})
         wisconsin_census.rename(columns={'County_name': 'county'})
-        wisconsin_census.head(5)
+        wisconsin_census.info()
         time.sleep(0.5)
         for i in range(len(wisconsin_census['county'])):
             wisconsin_census['county'][i] = wisconsin_census['county'][i][:-7] 
